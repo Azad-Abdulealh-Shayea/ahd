@@ -1,0 +1,315 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    var(--font-cairo), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-cairo);
+  --color-brand-soft-slate: var(--brand-soft-slate);
+  --color-brand-charcoal: var(--brand-charcoal);
+  --color-brand-ivory: var(--brand-ivory);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-page: var(--brand-page);
+  --color-contract-verified-foreground: var(--contract-verified-foreground);
+  --color-contract-verified: var(--contract-verified);
+  --color-contract-completed-foreground: var(--contract-completed-foreground);
+  --color-contract-completed: var(--contract-completed);
+  --color-contract-active-foreground: var(--contract-active-foreground);
+  --color-contract-active: var(--contract-active);
+  --color-info-foreground: var(--info-foreground);
+  --color-info: var(--info);
+  --color-funded-foreground: var(--funded-foreground);
+  --color-funded: var(--funded);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning: var(--warning);
+  --color-success-foreground: var(--success-foreground);
+  --color-success: var(--success);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-role-payer: var(--role-payer);
+  --color-role-provider: var(--role-provider);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --brand-navy: oklch(0.2393 0.0581 256.7);
+  --brand-teal: oklch(0.5108 0.0863 186.4);
+  --brand-gold: oklch(0.728 0.138 89.7);
+  --brand-ivory: oklch(0.9708 0.0086 84.6);
+  --brand-page: color-mix(in oklch, var(--brand-ivory) 50%, white);
+  --brand-charcoal: oklch(0.2101 0.0318 264.7);
+  --brand-soft-slate: oklch(0.9276 0.0058 264.5);
+  --background: var(--brand-page);
+  --foreground: var(--brand-charcoal);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--brand-charcoal);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--brand-charcoal);
+  --primary: var(--brand-navy);
+  --primary-foreground: oklch(0.985 0.004 84.6);
+  --secondary: var(--brand-soft-slate);
+  --secondary-foreground: var(--brand-charcoal);
+  --muted: oklch(0.952 0.006 264.5);
+  --muted-foreground: oklch(0.3729 0.0306 259.7);
+  --accent: oklch(0.926 0.026 186.4);
+  --accent-foreground: var(--brand-navy);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--brand-soft-slate);
+  --input: var(--brand-soft-slate);
+  --ring: var(--brand-teal);
+  --success: var(--brand-teal);
+  --success-foreground: oklch(0.985 0.004 84.6);
+  --warning: var(--brand-gold);
+  --warning-foreground: var(--brand-navy);
+  --funded: var(--brand-gold);
+  --funded-foreground: var(--brand-navy);
+  --info: var(--brand-navy);
+  --info-foreground: oklch(0.985 0.004 84.6);
+  --contract-active: var(--brand-navy);
+  --contract-active-foreground: oklch(0.985 0.004 84.6);
+  --contract-completed: var(--brand-teal);
+  --contract-completed-foreground: oklch(0.985 0.004 84.6);
+  --contract-verified: var(--brand-gold);
+  --contract-verified-foreground: var(--brand-navy);
+  --role-provider: var(--brand-teal);
+  --role-payer: var(--brand-gold);
+  --role-provider-gradient: linear-gradient(
+    to bottom,
+    oklch(0.9 0.045 186.4) 0%,
+    var(--brand-page) 100%
+  );
+  --role-payer-gradient: linear-gradient(
+    to bottom,
+    oklch(0.94 0.07 89.7) 0%,
+    var(--brand-page) 100%
+  );
+  --chart-1: var(--brand-navy);
+  --chart-2: var(--brand-teal);
+  --chart-3: var(--brand-gold);
+  --chart-4: oklch(0.3729 0.0306 259.7);
+  --chart-5: oklch(0.577 0.245 27.325);
+  --radius: 0.625rem;
+  --sidebar: var(--brand-navy);
+  --sidebar-foreground: oklch(0.985 0.004 84.6);
+  --sidebar-primary: var(--brand-teal);
+  --sidebar-primary-foreground: oklch(0.985 0.004 84.6);
+  --sidebar-accent: oklch(0.34 0.055 256.7);
+  --sidebar-accent-foreground: oklch(0.985 0.004 84.6);
+  --sidebar-border: oklch(1 0 0 / 14%);
+  --sidebar-ring: var(--brand-teal);
+}
+
+.dark {
+  --brand-navy: oklch(0.2393 0.0581 256.7);
+  --brand-teal: oklch(0.61 0.0863 186.4);
+  --brand-gold: oklch(0.78 0.138 89.7);
+  --brand-ivory: oklch(0.9708 0.0086 84.6);
+  --brand-page: color-mix(in oklch, var(--brand-ivory) 50%, white);
+  --brand-charcoal: oklch(0.2101 0.0318 264.7);
+  --brand-soft-slate: oklch(0.9276 0.0058 264.5);
+  --background: var(--brand-charcoal);
+  --foreground: var(--brand-ivory);
+  --card: oklch(0.25 0.035 264.7);
+  --card-foreground: var(--brand-ivory);
+  --popover: oklch(0.25 0.035 264.7);
+  --popover-foreground: var(--brand-ivory);
+  --primary: var(--brand-teal);
+  --primary-foreground: var(--brand-ivory);
+  --secondary: oklch(0.29 0.032 264.7);
+  --secondary-foreground: var(--brand-ivory);
+  --muted: oklch(0.29 0.032 264.7);
+  --muted-foreground: oklch(0.78 0.012 264.5);
+  --accent: oklch(0.34 0.045 186.4);
+  --accent-foreground: var(--brand-ivory);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: var(--brand-teal);
+  --success: var(--brand-teal);
+  --success-foreground: var(--brand-ivory);
+  --warning: var(--brand-gold);
+  --warning-foreground: var(--brand-navy);
+  --funded: var(--brand-gold);
+  --funded-foreground: var(--brand-navy);
+  --info: oklch(0.65 0.06 256.7);
+  --info-foreground: var(--brand-ivory);
+  --contract-active: var(--brand-teal);
+  --contract-active-foreground: var(--brand-ivory);
+  --contract-completed: var(--brand-teal);
+  --contract-completed-foreground: var(--brand-ivory);
+  --contract-verified: var(--brand-gold);
+  --contract-verified-foreground: var(--brand-navy);
+  --role-provider: var(--brand-teal);
+  --role-payer: var(--brand-gold);
+  --role-provider-gradient: linear-gradient(
+    to bottom,
+    oklch(0.29 0.04 186.4) 0%,
+    var(--brand-charcoal) 100%
+  );
+  --role-payer-gradient: linear-gradient(
+    to bottom,
+    oklch(0.31 0.06 89.7) 0%,
+    var(--brand-charcoal) 100%
+  );
+  --chart-1: var(--brand-teal);
+  --chart-2: var(--brand-gold);
+  --chart-3: oklch(0.65 0.06 256.7);
+  --chart-4: oklch(0.78 0.012 264.5);
+  --chart-5: oklch(0.704 0.191 22.216);
+  --sidebar: var(--brand-navy);
+  --sidebar-foreground: var(--brand-ivory);
+  --sidebar-primary: var(--brand-teal);
+  --sidebar-primary-foreground: var(--brand-ivory);
+  --sidebar-accent: oklch(0.34 0.055 256.7);
+  --sidebar-accent-foreground: var(--brand-ivory);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: var(--brand-teal);
+}
+
+@layer utilities {
+  @keyframes ahd-field-update-glow {
+    0% {
+      background-color: color-mix(
+        in oklch,
+        var(--brand-teal) 0%,
+        transparent
+      );
+      box-shadow: 0 0 0 0
+        color-mix(in oklch, var(--brand-teal) 0%, transparent);
+    }
+    18% {
+      background-color: color-mix(
+        in oklch,
+        var(--brand-teal) 9%,
+        transparent
+      );
+      box-shadow:
+        0 0 0 1px color-mix(in oklch, var(--brand-teal) 28%, transparent),
+        0 0 0 7px color-mix(in oklch, var(--brand-teal) 10%, transparent);
+    }
+    100% {
+      background-color: color-mix(
+        in oklch,
+        var(--brand-teal) 0%,
+        transparent
+      );
+      box-shadow: 0 0 0 0
+        color-mix(in oklch, var(--brand-teal) 0%, transparent);
+    }
+  }
+
+  @keyframes ahd-field-control-update-glow {
+    0%,
+    100% {
+      box-shadow: none;
+    }
+    22% {
+      box-shadow: 0 0 0 3px
+        color-mix(in oklch, var(--brand-teal) 16%, transparent);
+    }
+  }
+
+  [data-update-glow="true"] {
+    border-radius: var(--radius-2xl);
+    animation: ahd-field-update-glow 1050ms cubic-bezier(0.22, 1, 0.36, 1)
+      both;
+  }
+
+  [data-update-glow="true"] :is(input, textarea, [data-slot="slider"]) {
+    animation: ahd-field-control-update-glow 1050ms
+      cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-update-glow="true"],
+    [data-update-glow="true"] :is(input, textarea, [data-slot="slider"]) {
+      animation: none;
+    }
+  }
+
+  .role-gradient-provider {
+    background:
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--brand-page) 88%, transparent),
+        color-mix(in oklch, var(--brand-page) 64%, transparent)
+      ),
+      var(--role-provider-gradient);
+  }
+  .role-gradient-payer {
+    background:
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--brand-page) 88%, transparent),
+        color-mix(in oklch, var(--brand-page) 64%, transparent)
+      ),
+      var(--role-payer-gradient);
+  }
+  .role-border-provider {
+    border-top-color: var(--role-provider);
+  }
+  .role-border-payer {
+    border-top-color: var(--role-payer);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}

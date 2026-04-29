@@ -1,0 +1,250 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum DemoUserRole {
+  PROVIDER
+  PAYER_REVIEWER
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+enum ContractPartyRole {
+  PROVIDER
+  PAYER
+}
+
+enum MilestoneStatus {
+  AWAITING_FUNDING
+  FUNDED
+  IN_PROGRESS
+  COMPLETION_SUBMITTED
+  UNDER_REVIEW
+  REVISION_REQUESTED
+  CHANGE_REQUESTED
+  DISPUTED
+  APPROVED
+  AUTO_APPROVED
+}
+
+enum PaymentStatus {
+  UNFUNDED
+  FUNDED
+  RELEASE_PAUSED
+  RELEASED
+  REFUNDED
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  REVISION_REQUESTED
+  APPROVED
+  DISPUTED
+  SUPERSEDED
+}
+
+enum ChangeOrderStatus {
+  REQUESTED
+  ACCEPTED
+  DECLINED
+  FUNDED
+  COMPLETED
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  CANCELLED
+}
+
+model DemoUser {
+  id           String       @id
+  name         String
+  englishName  String
+  email        String       @unique
+  role         DemoUserRole
+  roleLabel    String
+  initials     String
+  organization String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  createdContracts Contract[]            @relation("ContractCreator")
+  parties          ContractParty[]
+  submissions      MilestoneSubmission[]
+  auditLogs        AuditLog[]
+  changeOrders     ChangeOrder[]         @relation("ChangeOrderRequester")
+  disputes         Dispute[]             @relation("DisputeOpenedBy")
+}
+
+model Contract {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  creatorId   String
+  totalAmount Int
+  currency    String         @default("SAR")
+  status      ContractStatus @default(DRAFT)
+  inviteToken String?        @unique
+  sentAt      DateTime?
+  acceptedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  creator      DemoUser        @relation("ContractCreator", fields: [creatorId], references: [id])
+  parties      ContractParty[]
+  milestones   Milestone[]
+  auditLogs    AuditLog[]
+  changeOrders ChangeOrder[]
+  disputes     Dispute[]
+}
+
+model ContractParty {
+  id         String            @id @default(cuid())
+  contractId String
+  userId     String?
+  name       String
+  email      String
+  phone      String?
+  role       ContractPartyRole
+  acceptedAt DateTime?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  contract Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  user     DemoUser? @relation(fields: [userId], references: [id])
+
+  @@unique([contractId, role])
+  @@index([userId])
+}
+
+model Milestone {
+  id                String          @id @default(cuid())
+  contractId        String
+  title             String
+  description       String
+  amount            Int
+  revisionsAllowed  Int             @default(2)
+  revisionsUsed     Int             @default(0)
+  reviewWindowHours Int             @default(72)
+  reviewDeadline    DateTime?
+  status            MilestoneStatus @default(AWAITING_FUNDING)
+  paymentStatus     PaymentStatus   @default(UNFUNDED)
+  submittedAt       DateTime?
+  approvedAt        DateTime?
+  releasedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  contract           Contract               @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  deliverables       MilestoneDeliverable[]
+  acceptanceCriteria AcceptanceCriterion[]
+  submissions        MilestoneSubmission[]
+  auditLogs          AuditLog[]
+  changeOrders       ChangeOrder[]
+  disputes           Dispute[]
+}
+
+model MilestoneDeliverable {
+  id          String   @id @default(cuid())
+  milestoneId String
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+}
+
+model AcceptanceCriterion {
+  id          String   @id @default(cuid())
+  milestoneId String
+  text        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  disputes  Dispute[]
+}
+
+model MilestoneSubmission {
+  id                String           @id @default(cuid())
+  milestoneId       String
+  submittedByUserId String
+  message           String
+  deliverableUrl    String?
+  fileName          String?          @map("mockFileName")
+  submittedAt       DateTime         @default(now())
+  status            SubmissionStatus @default(SUBMITTED)
+
+  milestone       Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  submittedByUser DemoUser  @relation(fields: [submittedByUserId], references: [id])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  contractId  String
+  milestoneId String?
+  actorUserId String?
+  action      String
+  message     String
+  createdAt   DateTime @default(now())
+
+  contract  Contract   @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  milestone Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  actor     DemoUser?  @relation(fields: [actorUserId], references: [id])
+
+  @@index([contractId, createdAt])
+}
+
+model ChangeOrder {
+  id            String            @id @default(cuid())
+  contractId    String
+  milestoneId   String
+  requestedById String
+  title         String
+  description   String
+  amount        Int
+  currency      String            @default("SAR")
+  status        ChangeOrderStatus @default(REQUESTED)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  contract    Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  milestone   Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  requestedBy DemoUser  @relation("ChangeOrderRequester", fields: [requestedById], references: [id])
+}
+
+model Dispute {
+  id                    String        @id @default(cuid())
+  contractId            String
+  milestoneId           String
+  acceptanceCriterionId String
+  openedById            String
+  reason                String
+  status                DisputeStatus @default(OPEN)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  contract            Contract            @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  milestone           Milestone           @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  acceptanceCriterion AcceptanceCriterion @relation(fields: [acceptanceCriterionId], references: [id])
+  openedBy            DemoUser            @relation("DisputeOpenedBy", fields: [openedById], references: [id])
+}
