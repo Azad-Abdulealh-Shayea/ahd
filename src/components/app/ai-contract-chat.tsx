@@ -203,76 +203,6 @@ export function AIContractChat({ onApplyContract }: AIContractChatProps) {
     handleOpenChange(false);
   };
 
-  const parseContractFromMessage = (
-    message: string,
-  ): Partial<CreateAndSendContractFormInput> | null => {
-    const result: Partial<CreateAndSendContractFormInput> = {};
-
-    const titleMatch = /عقد\s+(.+?)(?:\s+بمبلغ|$)/i.exec(message);
-    if (titleMatch?.[1]) {
-      result.title = titleMatch[1].trim();
-    } else {
-      const simpleTitleMatch = /(?:صمم|أنشئ|أريد)\s+(.+?)(?:\s+مبلغ|$)/i.exec(
-        message,
-      );
-      if (simpleTitleMatch?.[1]) {
-        result.title = simpleTitleMatch[1].trim();
-      }
-    }
-
-    const amountMatch = /(\d+[\d,]*)\s*(?:ريال|ر\.س)/i.exec(message);
-    if (amountMatch?.[1]) {
-      const amount = parseInt(amountMatch[1].replace(/,/g, ""), 10);
-      result.totalAmount = amount;
-    }
-
-    const descriptionMatch = /وصف[:\s]+(.+?)(?:\n|$)/i.exec(message);
-    if (descriptionMatch?.[1]) {
-      result.description = descriptionMatch[1].trim();
-    } else if (!result.title) {
-      const lines = message.split("\n").filter((l) => l.trim());
-      const firstLine = lines[0];
-      if (firstLine) {
-        result.title = firstLine.trim();
-        if (lines.length > 1) {
-          result.description = lines.slice(1).join(" ");
-        }
-      }
-    }
-
-    const milestonesMatch = /(\d+)\s*مراحل?/i.exec(message);
-    if (milestonesMatch?.[1]) {
-      const count = parseInt(milestonesMatch[1], 10);
-      const milestoneNames = [
-        "تصميم أولي",
-        "التطوير",
-        "المراجعة",
-        "التسليم",
-        "الدعم",
-      ];
-      const amountPerMilestone = result.totalAmount
-        ? Math.round(result.totalAmount / count)
-        : 1000;
-      result.milestones = Array.from({ length: count }, (_, i) => ({
-        title: milestoneNames[i] ?? `مرحلة ${i + 1}`,
-        description: "",
-        amount: amountPerMilestone,
-        deliverables: [
-          { title: milestoneNames[i] ?? `تسليم ${i + 1}`, description: "" },
-        ],
-        acceptanceCriteria: ["تسليم العمل المطلوب"],
-        revisionsAllowed: 2,
-        reviewWindowHours: 72,
-      }));
-    }
-
-    if (Object.keys(result).length === 0) {
-      return null;
-    }
-
-    return result;
-  };
-
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
 
@@ -281,36 +211,58 @@ export function AIContractChat({ onApplyContract }: AIContractChatProps) {
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsProcessing(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const response = await fetch("/api/ai/parse-contract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
 
-    const parsed = parseContractFromMessage(userMessage);
+      const result = (await response.json()) as {
+        success?: boolean;
+        data?: {
+          title?: string;
+          totalAmount?: number;
+          milestones?: Array<{ title?: string }>;
+        };
+        error?: string;
+      };
 
-    let assistantMessage = "";
+      if (result.success && result.data) {
+        const data = result.data;
+        const parts: string[] = [];
+        if (data.title) parts.push(`العقد: "${data.title}"`);
+        if (data.totalAmount)
+          parts.push(`المبلغ: ${data.totalAmount.toLocaleString()} ريال`);
+        if (data.milestones) parts.push(`(${data.milestones.length} مراحل)`);
 
-    if (parsed && (parsed.title || parsed.totalAmount)) {
-      const parts: string[] = [];
-      if (parsed.title) parts.push(`العقد: "${parsed.title}"`);
-      if (parsed.totalAmount)
-        parts.push(`المبلغ: ${parsed.totalAmount.toLocaleString()} ريال`);
-      if (parsed.milestones) parts.push(`(${parsed.milestones.length} مراحل)`);
+        const assistantMessage = `فهمت! سأقوم بتطبيق:\n${parts.join(" - ")}\n\n`;
 
-      assistantMessage = `فهمت! سأقوم بتطبيق:\n${parts.join(" - ")}\n\n`;
-
-      setLastParsedContract(parsed);
+        setLastParsedContract(result.data as Partial<CreateAndSendContractFormInput>);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: assistantMessage,
+            showApplyButton: true,
+          },
+        ]);
+      } else {
+        const assistantMessage =
+          result.error ??
+          'لم أستطع فهم تفاصيل العقد بشكل كامل. يمكنك وصفه بوضوح أكثر.\n\nمثال: "عقد تصميم موقع بمبلغ 5000 ريال على 3 مراحل"';
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: assistantMessage },
+        ]);
+      }
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: assistantMessage,
-          showApplyButton: true,
+          content: "حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.",
         },
-      ]);
-    } else {
-      assistantMessage =
-        'لم أستطع فهم تفاصيل العقد بشكل كامل. يمكنك وصفه بوضوح أكثر.\n\nمثال: "عقد تصميم موقع بمبلغ 5000 ريال على 3 مراحل"';
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: assistantMessage },
       ]);
     }
 
