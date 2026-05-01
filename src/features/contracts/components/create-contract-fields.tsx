@@ -355,7 +355,9 @@ export function MilestoneBuilder() {
       })),
       { shouldDirty: true, shouldValidate: true },
     );
-    glowUpdatedFields(milestones.map((_, index) => `milestones.${index}.amount`));
+    glowUpdatedFields(
+      milestones.map((_, index) => `milestones.${index}.amount`),
+    );
   }
 
   if (!activeMilestone) {

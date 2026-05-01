@@ -55,7 +55,9 @@ export default async function DisputePage({
 
       <MotionSection className="flex max-w-4xl flex-col gap-4 border-b pb-8">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={dispute.status === "OPEN" ? "destructive" : "outline"}>
+          <Badge
+            variant={dispute.status === "OPEN" ? "destructive" : "outline"}
+          >
             {disputeStatusCopy[dispute.status]}
           </Badge>
           <MilestoneStatusBadge status={milestone.status} />

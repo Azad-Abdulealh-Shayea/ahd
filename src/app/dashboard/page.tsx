@@ -46,10 +46,7 @@ import { requireCurrentDemoUser } from "@/server/demo-session";
 import { listContractsForUser } from "@/server/services/contract-workflow";
 import type { DemoUser, Milestone } from "../../../generated/prisma";
 
-import {
-  DashboardStatusPie,
-  DashboardTrendChart,
-} from "./dashboard-charts";
+import { DashboardStatusPie, DashboardTrendChart } from "./dashboard-charts";
 
 export default async function DashboardPage() {
   const currentUser = await requireCurrentDemoUser();
@@ -76,16 +73,14 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
       icon: CheckmarkCircle02Icon,
       accentClassName: "border-t-success",
       dotClassName: "bg-success",
-      valueClassName: "text-success",
     },
     {
       label: "إجمالي الممول",
       value: formatSar(summary.totalFundedAmount),
       hint: "كل ما تم تمويله، سواء كان محجوزاً أو مصروفاً.",
       icon: MoneySecurityIcon,
-      accentClassName: "border-t-brand-navy",
-      dotClassName: "bg-brand-navy",
-      valueClassName: "text-brand-navy",
+      accentClassName: "border-t-primary",
+      dotClassName: "bg-primary",
     },
     {
       label: "الأموال المحجوزة",
@@ -94,7 +89,6 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
       icon: Task01Icon,
       accentClassName: "border-t-warning",
       dotClassName: "bg-warning",
-      valueClassName: "text-warning-foreground",
     },
     {
       label: "الإيراد المحقق",
@@ -103,7 +97,6 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
       icon: Payment02Icon,
       accentClassName: "border-t-contract-completed",
       dotClassName: "bg-contract-completed",
-      valueClassName: "text-contract-completed",
     },
   ];
 
@@ -126,12 +119,12 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
         </Button>
       </div>
 
-      <div className="grid border-y md:grid-cols-4">
+      <div className="grid md:grid-cols-4">
         {stats.map((stat) => (
           <MotionListItem
             key={stat.label}
             className={cn(
-              "flex min-w-0 flex-col gap-4 border-b border-t-2 py-5 md:border-e md:border-b-0 md:px-5 md:first:pe-0 md:last:border-e-0 md:last:ps-0",
+              "flex min-w-0 flex-col gap-4 border-t-2 border-b py-5 md:border-e md:border-b-0 md:px-5 md:first:pe-0 md:last:border-e-0 md:last:ps-0",
               stat.accentClassName,
             )}
           >
@@ -145,12 +138,7 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
               </span>
               <InfoTooltip text={stat.hint} />
             </div>
-            <span
-              className={cn(
-                "truncate text-2xl font-semibold tabular-nums",
-                stat.valueClassName,
-              )}
-            >
+            <span className="truncate text-2xl font-semibold tabular-nums">
               {stat.value}
             </span>
           </MotionListItem>
@@ -162,7 +150,7 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
 
 function ChartsSection({ summary }: { summary: DashboardSummary }) {
   return (
-    <MotionSection className="grid gap-6 border-y py-5 lg:grid-cols-[3fr_1fr]">
+    <MotionSection className="grid gap-6 py-5 lg:grid-cols-[3fr_1fr]">
       <section className="flex min-w-0 flex-col gap-4 lg:pe-6">
         <SectionTitle
           title="حركة العقود"
@@ -175,7 +163,7 @@ function ChartsSection({ summary }: { summary: DashboardSummary }) {
         )}
       </section>
 
-      <section className="flex min-w-0 flex-col gap-4 border-t pt-5 lg:border-t-0 lg:border-s lg:pt-0 lg:ps-6">
+      <section className="flex min-w-0 flex-col gap-4 pt-5 lg:ps-6 lg:pt-0">
         <SectionTitle
           title="حالة العقود"
           hint="توزيع سريع للعقود حسب الحالة الحالية."
@@ -225,7 +213,7 @@ function ContractsSection({
   const title = summary.actionRows.length ? "يتطلب إجراء" : "آخر العقود";
 
   return (
-    <MotionSection className="flex flex-col gap-4 border-y py-5">
+    <MotionSection className="flex flex-col gap-4 py-5">
       <div className="flex items-center justify-between gap-4">
         <SectionTitle
           title={title}
@@ -339,7 +327,7 @@ function InfoTooltip({ text }: { text: string }) {
 
 function EmptyChart({ children }: { children: ReactNode }) {
   return (
-    <div className="text-muted-foreground flex h-56 items-center justify-center border-y text-sm">
+    <div className="text-muted-foreground flex h-56 items-center justify-center text-sm">
       {children}
     </div>
   );
@@ -396,7 +384,9 @@ function getTrendData(contracts: ContractListItem[]) {
     .map((contract, index) => {
       const milestones = contract.milestones;
       const funded = sumMilestones(
-        milestones.filter((milestone) => milestone.paymentStatus !== "UNFUNDED"),
+        milestones.filter(
+          (milestone) => milestone.paymentStatus !== "UNFUNDED",
+        ),
       );
       const held = sumMilestones(
         milestones.filter((milestone) =>
@@ -404,7 +394,9 @@ function getTrendData(contracts: ContractListItem[]) {
         ),
       );
       const released = sumMilestones(
-        milestones.filter((milestone) => milestone.paymentStatus === "RELEASED"),
+        milestones.filter(
+          (milestone) => milestone.paymentStatus === "RELEASED",
+        ),
       );
 
       return {

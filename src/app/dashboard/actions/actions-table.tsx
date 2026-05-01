@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft02Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft02Icon, Task01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 import { motion, pageStagger, subtleListItem } from "@/components/app/motion";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { formatSar, PaymentStatusBadge } from "@/features/contracts/display";
 import {
   getNextAction,
@@ -32,12 +39,7 @@ export function ActionsTable({
   });
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={pageStagger}
-      className="border-y"
-    >
+    <motion.div initial="hidden" animate="visible" variants={pageStagger}>
       {actionItems.map((contract) => {
         const action = getNextAction(contract, currentUser);
         const milestone = getPrimaryMilestone(contract);
@@ -73,9 +75,17 @@ export function ActionsTable({
         );
       })}
       {!actionItems.length ? (
-        <div className="text-muted-foreground py-12 text-center text-sm">
-          لا توجد إجراءات مطلوبة.
-        </div>
+        <Empty className="border-2 border-dashed">
+          <EmptyContent>
+            <EmptyMedia variant="icon">
+              <HugeiconsIcon icon={Task01Icon} />
+            </EmptyMedia>
+            <EmptyTitle>لا توجد إجراءات مطلوبة</EmptyTitle>
+            <EmptyDescription>
+              عندما تحتاج إلى قرار منك، سيظهر هنا.
+            </EmptyDescription>
+          </EmptyContent>
+        </Empty>
       ) : null}
     </motion.div>
   );

@@ -72,7 +72,10 @@ export function FundingCheckout({
         variants={pageStagger}
         className="grid gap-10 lg:grid-cols-[1fr_20rem]"
       >
-        <motion.div variants={softScale} className="flex max-w-3xl flex-col gap-5">
+        <motion.div
+          variants={softScale}
+          className="flex max-w-3xl flex-col gap-5"
+        >
           <div className="text-success flex items-center gap-2">
             <HugeiconsIcon icon={CheckmarkCircle02Icon} />
             <span className="font-semibold">تم التمويل</span>

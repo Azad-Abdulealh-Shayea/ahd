@@ -10,8 +10,6 @@ import {
   useState,
 } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SparklesIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { useRouter } from "next/navigation";
 import {
   FormProvider,
@@ -23,18 +21,12 @@ import {
 } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   getDefaultCreateContractValues,
   type CreateContractStep,
 } from "@/features/contracts/create-contract-defaults";
-import { predefinedContractTemplates } from "@/features/contracts/create-contract-templates";
+
+import { AIContractChat } from "@/components/app/ai-contract-chat";
 import {
   createAndSendContractSchema,
   type CreateAndSendContractFormInput,
@@ -55,6 +47,8 @@ type CreateContractContextValue = {
   ) => Promise<boolean>;
   validateStep: (step: CreateContractStep) => Promise<boolean>;
   clearDraft: () => void;
+  aiChatOpen: boolean;
+  setAiChatOpen: (open: boolean) => void;
 };
 
 const CreateContractContext = createContext<CreateContractContextValue | null>(
@@ -80,6 +74,7 @@ export function CreateContractProvider({
   const utils = api.useUtils();
   const [isHydrated, setIsHydrated] = useState(false);
   const [updatedFieldKeys, setUpdatedFieldKeys] = useState<string[]>([]);
+  const [aiChatOpen, setAiChatOpen] = useState(false);
   const glowTimerRef = useRef<number | null>(null);
   const glowStartTimerRef = useRef<number | null>(null);
   const form = useForm<
@@ -254,6 +249,8 @@ export function CreateContractProvider({
         return valid;
       },
       clearDraft,
+      aiChatOpen,
+      setAiChatOpen,
     }),
     [
       createMutation,
@@ -261,6 +258,7 @@ export function CreateContractProvider({
       focusFirstError,
       form,
       glowUpdatedFields,
+      aiChatOpen,
       isFieldRecentlyUpdated,
     ],
   );
@@ -319,76 +317,27 @@ function ContractTemplatePicker({
   const form = useFormContext<CreateAndSendContractFormInput>();
   const { glowUpdatedFields } = useCreateContractFlow();
 
-  function applyTemplate(templateId: string) {
-    const template = predefinedContractTemplates.find(
-      (item) => item.id === templateId,
-    );
-    if (!template) return;
-
+  function handleAIApply(values: Partial<CreateAndSendContractFormInput>) {
     const current = form.getValues();
+    const updatedValues = { ...current, ...values };
     form.reset({
-      ...current,
-      ...template.values,
+      ...updatedValues,
       creatorRole: current.creatorRole,
       otherParty: toOtherPartyValues(fixedOtherParty),
     });
-    glowUpdatedFields([
-      "title",
-      "description",
-      "totalAmount",
-      "milestones",
-    ]);
-    toast.success("تم تعبئة العقد التجريبي");
+
+    const fields: string[] = [];
+    if (values.title) fields.push("title");
+    if (values.description) fields.push("description");
+    if (values.totalAmount) fields.push("totalAmount");
+    if (values.milestones) fields.push("milestones");
+    if (fields.length > 0) {
+      glowUpdatedFields(fields);
+    }
+    toast.success("تم تعبئة العقد بالبيانات من المساعد");
   }
 
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          className="fixed end-4 bottom-24 z-[80] shadow-lg md:end-6"
-          size="lg"
-        >
-          <HugeiconsIcon icon={SparklesIcon} data-icon="inline-start" />
-          عقود جاهزة
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        side="top"
-        align="end"
-        className="z-[90] w-[min(24rem,calc(100vw-2rem))] p-0"
-      >
-        <div className="flex flex-col">
-          <div className="border-b p-4">
-            <h2 className="font-semibold">اختر عقداً جاهزاً</h2>
-            <p className="text-muted-foreground mt-1 text-sm leading-6">
-              يملأ العنوان، الوصف، المبلغ، والمراحل كاملة.
-            </p>
-          </div>
-          <div className="max-h-[min(28rem,70vh)] overflow-y-auto">
-            {predefinedContractTemplates.map((template) => (
-              <button
-                key={template.id}
-                type="button"
-                className="hover:bg-muted/60 focus-visible:ring-ring flex w-full flex-col gap-2 border-b p-4 text-start outline-none last:border-b-0 focus-visible:ring-2"
-                onClick={() => applyTemplate(template.id)}
-              >
-                <span className="flex w-full items-start justify-between gap-3">
-                  <span className="font-medium">{template.title}</span>
-                  <Badge variant="outline">
-                    {template.values.milestones.length} مراحل
-                  </Badge>
-                </span>
-                <span className="text-muted-foreground text-sm leading-6">
-                  {template.description}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
+  return <AIContractChat onApplyContract={handleAIApply} />;
 }
 
 function toOtherPartyValues(fixedOtherParty: FixedOtherParty) {

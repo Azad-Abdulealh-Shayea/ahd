@@ -29,7 +29,8 @@ export const predefinedContractTemplates: PredefinedContractTemplate[] = [
           deliverables: [
             {
               title: "لوحة اتجاه بصري",
-              description: "لوحتان بصريتان تتضمنان الألوان والمراجع والأسلوب العام.",
+              description:
+                "لوحتان بصريتان تتضمنان الألوان والمراجع والأسلوب العام.",
             },
           ],
           acceptanceCriteria: [
@@ -66,7 +67,8 @@ export const predefinedContractTemplates: PredefinedContractTemplate[] = [
           deliverables: [
             {
               title: "دليل هوية مصغر",
-              description: "ملف PDF يوضح قواعد استخدام الشعار والألوان والخطوط.",
+              description:
+                "ملف PDF يوضح قواعد استخدام الشعار والألوان والخطوط.",
             },
           ],
           acceptanceCriteria: [
@@ -115,7 +117,8 @@ export const predefinedContractTemplates: PredefinedContractTemplate[] = [
           deliverables: [
             {
               title: "تصاميم الواجهات",
-              description: "تصاميم عالية الدقة للصفحات الأساسية على الجوال والسطح المكتبي.",
+              description:
+                "تصاميم عالية الدقة للصفحات الأساسية على الجوال والسطح المكتبي.",
             },
           ],
           acceptanceCriteria: [
@@ -268,7 +271,8 @@ export const predefinedContractTemplates: PredefinedContractTemplate[] = [
           deliverables: [
             {
               title: "ملفات المحتوى النهائية",
-              description: "تصاميم ومقاطع قصيرة جاهزة للنشر مع ملفات المصدر عند الحاجة.",
+              description:
+                "تصاميم ومقاطع قصيرة جاهزة للنشر مع ملفات المصدر عند الحاجة.",
             },
           ],
           acceptanceCriteria: [
@@ -335,7 +339,8 @@ export const predefinedContractTemplates: PredefinedContractTemplate[] = [
           deliverables: [
             {
               title: "نسخة عاملة من اللوحة",
-              description: "واجهة قابلة للتجربة تعرض المؤشرات والجداول والتفاصيل.",
+              description:
+                "واجهة قابلة للتجربة تعرض المؤشرات والجداول والتفاصيل.",
             },
           ],
           acceptanceCriteria: [

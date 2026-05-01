@@ -103,7 +103,8 @@ const milestoneStatusCopy: Record<
   REVISION_REQUESTED: {
     label: "تعديل مطلوب",
     tone: "warning",
-    description: "المراجع طلب تعديلاً مرتبطاً بمعيار قبول. ينتظر تسليم نسخة جديدة.",
+    description:
+      "المراجع طلب تعديلاً مرتبطاً بمعيار قبول. ينتظر تسليم نسخة جديدة.",
   },
   CHANGE_REQUESTED: {
     label: "طلب تغيير",

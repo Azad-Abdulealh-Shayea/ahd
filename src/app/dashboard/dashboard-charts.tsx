@@ -79,7 +79,7 @@ export function DashboardTrendChart({ data }: { data: DashboardTrendDatum[] }) {
   return (
     <ChartContainer
       config={trendConfig}
-      className="h-56 w-full aspect-auto"
+      className="aspect-auto h-56 w-full"
       initialDimension={{ width: 800, height: 224 }}
     >
       <BarChart
@@ -117,21 +117,13 @@ export function DashboardTrendChart({ data }: { data: DashboardTrendDatum[] }) {
             />
           }
         />
-        <Bar
-          dataKey="total"
-          fill="var(--color-total)"
-          radius={[4, 4, 0, 0]}
-        />
+        <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
         <Bar
           dataKey="funded"
           fill="var(--color-funded)"
           radius={[4, 4, 0, 0]}
         />
-        <Bar
-          dataKey="held"
-          fill="var(--color-held)"
-          radius={[4, 4, 0, 0]}
-        />
+        <Bar dataKey="held" fill="var(--color-held)" radius={[4, 4, 0, 0]} />
         <Bar
           dataKey="released"
           fill="var(--color-released)"
@@ -152,7 +144,7 @@ export function DashboardStatusPie({
   return (
     <ChartContainer
       config={pieConfig}
-      className="h-56 w-full aspect-auto"
+      className="aspect-auto h-56 w-full"
       initialDimension={{ width: 280, height: 224 }}
     >
       <PieChart accessibilityLayer>

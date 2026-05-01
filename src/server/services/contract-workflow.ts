@@ -173,7 +173,10 @@ async function findDemoCounterparty(tx: Transaction, user: DemoUser) {
   });
 
   if (!counterparty) {
-    throw workflowError("لا يوجد مستخدم عرض آخر لإنشاء العقد معه.", "NOT_FOUND");
+    throw workflowError(
+      "لا يوجد مستخدم عرض آخر لإنشاء العقد معه.",
+      "NOT_FOUND",
+    );
   }
 
   return counterparty;

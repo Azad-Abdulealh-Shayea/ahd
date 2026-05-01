@@ -126,11 +126,7 @@ export function MotionSection({
   ...props
 }: ComponentProps<typeof motion.section>) {
   return (
-    <motion.section
-      variants={variants}
-      className={cn(className)}
-      {...props}
-    >
+    <motion.section variants={variants} className={cn(className)} {...props}>
       {children}
     </motion.section>
   );
@@ -142,7 +138,11 @@ export function MotionListItem({
   ...props
 }: ComponentProps<typeof motion.article>) {
   return (
-    <motion.article variants={subtleListItem} className={cn(className)} {...props}>
+    <motion.article
+      variants={subtleListItem}
+      className={cn(className)}
+      {...props}
+    >
       {children}
     </motion.article>
   );

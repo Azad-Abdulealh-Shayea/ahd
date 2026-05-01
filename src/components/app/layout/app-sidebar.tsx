@@ -4,17 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   File01Icon,
-  HelpCircleIcon,
   Home01Icon,
   LegalDocument01Icon,
   Payment02Icon,
   Settings01Icon,
   Task01Icon,
   UserSwitchIcon,
+  HelpCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/app/mode-toggle";
 import {
   Dialog,
   DialogContent,
@@ -66,9 +67,10 @@ type AppSidebarProps = {
     roleLabel: string;
     initials: string;
   };
+  onSwitchUser?: () => void;
 };
 
-export function AppSidebar({ currentUser }: AppSidebarProps) {
+export function AppSidebar({ currentUser, onSwitchUser }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -157,43 +159,18 @@ export function AppSidebar({ currentUser }: AppSidebarProps) {
                   </div>
                 </DialogContent>
               </Dialog>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="المساعدة"
-                  >
-                    <HugeiconsIcon icon={HelpCircleIcon} />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>كيف يعمل عهد؟</DialogTitle>
-                    <DialogDescription>
-                      نظرة سريعة تساعد العميل أو لجنة التحكيم على فهم مسار العقد
-                      الممول.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <ol className="grid gap-3 text-sm">
-                    {[
-                      "أنشئ عقداً وحدد دور كل طرف.",
-                      "قسّم العمل إلى مراحل ومعايير قبول واضحة.",
-                      "يقبل الطرف الآخر العقد ويمول المرحلة.",
-                      "يرسل مقدم الخدمة طلب الإنجاز.",
-                      "يراجع الممول الطلب ويتم صرف الدفعة عند الاعتماد.",
-                    ].map((item, index) => (
-                      <li key={item} className="flex gap-3">
-                        <span className="bg-primary text-primary-foreground flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-                          {index + 1}
-                        </span>
-                        <span className="leading-6">{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </DialogContent>
-              </Dialog>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="دليل عهد"
+                onClick={() =>
+                  window.dispatchEvent(new Event("open-welcome-dialog"))
+                }
+              >
+                <HugeiconsIcon icon={HelpCircleIcon} />
+              </Button>
+              <ModeToggle />
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
@@ -218,16 +195,29 @@ export function AppSidebar({ currentUser }: AppSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <form action="/logout" method="post">
+            {onSwitchUser ? (
               <SidebarMenuButton
-                type="submit"
+                asChild
                 tooltip={{ children: "تبديل المستخدم", side: "left" }}
                 className="group-data-[collapsible=icon]:justify-center"
               >
-                <HugeiconsIcon icon={UserSwitchIcon} />
-                <span>تبديل المستخدم</span>
+                <button type="button" onClick={onSwitchUser}>
+                  <HugeiconsIcon icon={UserSwitchIcon} />
+                  <span>تبديل المستخدم</span>
+                </button>
               </SidebarMenuButton>
-            </form>
+            ) : (
+              <form action="/logout" method="post">
+                <SidebarMenuButton
+                  type="submit"
+                  tooltip={{ children: "تبديل المستخدم", side: "left" }}
+                  className="group-data-[collapsible=icon]:justify-center"
+                >
+                  <HugeiconsIcon icon={UserSwitchIcon} />
+                  <span>تبديل المستخدم</span>
+                </SidebarMenuButton>
+              </form>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

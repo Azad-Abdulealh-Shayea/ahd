@@ -30,7 +30,12 @@ export function CopyInviteLinkButton({
   }
 
   return (
-    <Button type="button" size={size} variant={variant} onClick={copyInviteLink}>
+    <Button
+      type="button"
+      size={size}
+      variant={variant}
+      onClick={copyInviteLink}
+    >
       <HugeiconsIcon icon={CopyLinkIcon} data-icon="inline-start" />
       {label}
     </Button>

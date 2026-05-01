@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -131,7 +131,7 @@ export function WizardCreateContractPage({
   step: CreateContractStep;
 }) {
   const router = useRouter();
-  const { validateStep, submitContract, isSubmitting } =
+  const { validateStep, submitContract, isSubmitting, aiChatOpen } =
     useCreateContractFlow();
   const stepIndex = createContractSteps.indexOf(step);
   const previousStep = createContractSteps[stepIndex - 1];
@@ -139,7 +139,7 @@ export function WizardCreateContractPage({
   const isReview = step === "review";
   const progress = ((stepIndex + 1) / createContractSteps.length) * 100;
   const [guidanceOpen, setGuidanceOpen] = useState(true);
-  const [guidanceVisible, setGuidanceVisible] = useState(true);
+  const [guidanceVisible, setGuidanceVisible] = useState(!aiChatOpen);
   const previousStepIndexRef = useRef(stepIndex);
   const stepDirectionRef = useRef<StepDirection>(1);
 
@@ -150,6 +150,12 @@ export function WizardCreateContractPage({
   }
 
   const stepDirection = stepDirectionRef.current;
+
+  useEffect(() => {
+    if (aiChatOpen) {
+      setGuidanceVisible(false);
+    }
+  }, [aiChatOpen]);
 
   async function goNext() {
     const valid = await validateStep(step);
@@ -200,18 +206,14 @@ export function WizardCreateContractPage({
         </header>
 
         <form
-          className="grid flex-1 gap-8 pt-6 pb-28 lg:grid-cols-[minmax(0,1fr)_20rem]"
+          className="grid flex-1 gap-6 pt-4 pb-28 lg:grid-cols-[minmax(0,1fr)_16rem]"
           onSubmit={(event) => {
             event.preventDefault();
             submitContract();
           }}
         >
           <div className="min-w-0 overflow-hidden">
-            <AnimatePresence
-              custom={stepDirection}
-              initial={false}
-              mode="wait"
-            >
+            <AnimatePresence custom={stepDirection} initial={false} mode="wait">
               <motion.section
                 key={step}
                 custom={stepDirection}
@@ -387,7 +389,7 @@ function GuidancePanel({
       initial="hidden"
       animate="visible"
       variants={softScale}
-      className="flex flex-col gap-5 border-t pt-6 lg:sticky lg:top-6 lg:self-start lg:border-t-0 lg:pt-0"
+      className="flex flex-col gap-3 border-t pt-4 lg:sticky lg:top-4 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:border-t-0 lg:pt-0"
     >
       <div className="flex items-start justify-between gap-3">
         <button
@@ -403,9 +405,9 @@ function GuidancePanel({
               !isOpen && "-rotate-90",
             )}
           />
-          <span className="flex min-w-0 flex-col gap-2">
-            <span className="text-muted-foreground text-sm">إرشاد اختياري</span>
-            <span className="text-xl font-semibold">{item.title}</span>
+          <span className="flex min-w-0 flex-col gap-1">
+            <span className="text-muted-foreground text-xs">إرشاد اختياري</span>
+            <span className="text-base font-semibold">{item.title}</span>
           </span>
         </button>
         <Button
@@ -425,11 +427,11 @@ function GuidancePanel({
             {...heightReveal}
             className="overflow-hidden"
           >
-            <div className="flex flex-col gap-5">
-              <p className="text-muted-foreground text-sm leading-7">
+            <div className="flex flex-col gap-3">
+              <p className="text-muted-foreground text-xs leading-6">
                 {item.purpose}
               </p>
-              <Separator />
+              <Separator className="my-1" />
               <GuidanceBlock title="المدخل الجيد" body={item.goodInput} />
               <GuidanceBlock title="تجنب" body={item.avoid} />
               <GuidanceBlock title="الأثر لاحقاً" body={item.later} />
@@ -443,9 +445,9 @@ function GuidancePanel({
 
 function GuidanceBlock({ title, body }: { title: string; body: string }) {
   return (
-    <section className="flex flex-col gap-2">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-muted-foreground text-sm leading-7">{body}</p>
+    <section className="flex flex-col gap-1">
+      <h3 className="text-xs font-medium">{title}</h3>
+      <p className="text-muted-foreground text-xs leading-5">{body}</p>
     </section>
   );
 }

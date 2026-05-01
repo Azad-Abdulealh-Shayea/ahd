@@ -32,7 +32,8 @@ export function DisputeActions({
     onError: (error) => toast.error(error.message),
   });
   const cancelDispute = api.contracts.cancelDispute.useMutation({
-    onSuccess: () => returnToContract("تم إلغاء النزاع وإرجاع المرحلة للمراجعة."),
+    onSuccess: () =>
+      returnToContract("تم إلغاء النزاع وإرجاع المرحلة للمراجعة."),
     onError: (error) => toast.error(error.message),
   });
   const isPending = resolveDispute.isPending || cancelDispute.isPending;
@@ -47,7 +48,10 @@ export function DisputeActions({
         {resolveDispute.isPending ? (
           <Spinner data-icon="inline-start" />
         ) : (
-          <HugeiconsIcon icon={CheckmarkCircle02Icon} data-icon="inline-start" />
+          <HugeiconsIcon
+            icon={CheckmarkCircle02Icon}
+            data-icon="inline-start"
+          />
         )}
         حل النزاع
       </Button>

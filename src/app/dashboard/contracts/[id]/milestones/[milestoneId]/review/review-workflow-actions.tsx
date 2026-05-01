@@ -176,9 +176,7 @@ export function ReviewWorkflowActions({
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="change-description">
-                وصف التغيير
-              </FieldLabel>
+              <FieldLabel htmlFor="change-description">وصف التغيير</FieldLabel>
               <Textarea
                 id="change-description"
                 placeholder="اشرح العمل الإضافي المطلوب ولماذا هو خارج نطاق المرحلة…"

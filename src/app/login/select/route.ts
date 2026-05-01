@@ -7,10 +7,18 @@ import {
 import { db } from "@/server/db";
 
 export async function POST(request: NextRequest) {
-  const formData = await request.formData();
-  const userId = formData.get("userId");
+  let userId: string | undefined = undefined;
 
-  if (typeof userId !== "string") {
+  const contentType = request.headers.get("content-type");
+  if (contentType?.includes("application/json")) {
+    const body = (await request.json()) as { userId?: string };
+    userId = body.userId;
+  } else {
+    const formData = await request.formData();
+    userId = formData.get("userId") as string | undefined;
+  }
+
+  if (!userId) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
