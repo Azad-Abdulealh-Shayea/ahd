@@ -20,12 +20,16 @@ import {
 } from "@/components/ui/chart";
 import { formatSar } from "@/features/contracts/display";
 
-export type DashboardTrendDatum = {
-  label: string;
-  total: number;
-  funded: number;
-  held: number;
-  released: number;
+export type PaymentPipelineDatum = {
+  name: string;
+  value: number;
+  fill: string;
+};
+
+export type MilestoneProgressDatum = {
+  stage: string;
+  count: number;
+  fill: string;
 };
 
 export type DashboardPieDatum = {
@@ -34,22 +38,43 @@ export type DashboardPieDatum = {
   fill: string;
 };
 
-const trendConfig = {
-  total: {
-    label: "قيمة العقود",
-    color: "var(--chart-1)",
+const pipelineConfig = {
+  value: {
+    label: "المبلغ",
   },
   funded: {
     label: "ممول",
-    color: "var(--chart-2)",
+    color: "var(--success)",
   },
   held: {
     label: "محجوز",
-    color: "var(--chart-3)",
+    color: "var(--warning)",
   },
   released: {
-    label: "مصروف",
-    color: "var(--chart-4)",
+    label: "مصرف",
+    color: "var(--brand-navy)",
+  },
+} satisfies ChartConfig;
+
+const milestoneConfig = {
+  value: {
+    label: "المراحل",
+  },
+  awaiting: {
+    label: "ينتظر تمويل",
+    color: "var(--muted)",
+  },
+  funded: {
+    label: "قيد التنفيذ",
+    color: "var(--primary)",
+  },
+  review: {
+    label: "قيد المراجعة",
+    color: "var(--warning)",
+  },
+  released: {
+    label: "مكتملة",
+    color: "var(--success)",
   },
 } satisfies ChartConfig;
 
@@ -75,60 +100,107 @@ const pieConfig = {
   },
 } satisfies ChartConfig;
 
-export function DashboardTrendChart({ data }: { data: DashboardTrendDatum[] }) {
+export function PaymentPipelineChart({
+  data,
+}: {
+  data: PaymentPipelineDatum[];
+}) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <ChartContainer
-      config={trendConfig}
-      className="aspect-auto h-56 w-full"
-      initialDimension={{ width: 800, height: 224 }}
+      config={pipelineConfig}
+      className="aspect-auto h-32 w-full"
+      initialDimension={{ width: 400, height: 128 }}
     >
       <BarChart
         accessibilityLayer
         data={data}
-        barGap={4}
-        barCategoryGap={18}
-        margin={{ top: 8, right: 8, left: 8, bottom: 0 }}
+        layout="vertical"
+        margin={{ top: 0, right: 8, left: 8, bottom: 0 }}
       >
-        <CartesianGrid vertical={false} />
+        <CartesianGrid horizontal={false} />
         <XAxis
-          dataKey="label"
-          tickLine={false}
-          axisLine={false}
-          tickMargin={10}
+          type="number"
+          hide
+          domain={[0, total]}
         />
         <YAxis
-          width={76}
+          type="category"
+          dataKey="name"
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value: number) =>
-            new Intl.NumberFormat("ar-SA", {
-              notation: "compact",
-              maximumFractionDigits: 1,
-            }).format(value)
-          }
+          width={80}
         />
         <ChartTooltip
           content={
             <ChartTooltipContent
-              indicator="dot"
-              formatter={(value) =>
-                typeof value === "number" ? formatSar(value) : value
-              }
+              formatter={(value) => formatSar(value as number)}
             />
           }
         />
-        <Bar dataKey="total" fill="var(--color-total)" radius={[4, 4, 0, 0]} />
         <Bar
-          dataKey="funded"
-          fill="var(--color-funded)"
-          radius={[4, 4, 0, 0]}
+          dataKey="value"
+          radius={[0, 4, 4, 0]}
+          barSize={28}
+        >
+          {data.map((entry) => (
+            <Cell key={entry.name} fill={entry.fill} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+export function MilestoneProgressChart({
+  data,
+}: {
+  data: MilestoneProgressDatum[];
+}) {
+  const total = data.reduce((sum, item) => sum + item.count, 0);
+
+  return (
+    <ChartContainer
+      config={milestoneConfig}
+      className="aspect-auto h-40 w-full"
+      initialDimension={{ width: 400, height: 160 }}
+    >
+      <BarChart
+        accessibilityLayer
+        data={data}
+        layout="vertical"
+        margin={{ top: 0, right: 8, left: 8, bottom: 0 }}
+      >
+        <CartesianGrid horizontal={false} />
+        <XAxis
+          type="number"
+          hide
+          domain={[0, total]}
         />
-        <Bar dataKey="held" fill="var(--color-held)" radius={[4, 4, 0, 0]} />
+        <YAxis
+          type="category"
+          dataKey="stage"
+          tickLine={false}
+          axisLine={false}
+          width={90}
+        />
+        <ChartTooltip
+          content={
+            <ChartTooltipContent
+              formatter={(value) => `${value as number} مرحلة`}
+            />
+          }
+        />
         <Bar
-          dataKey="released"
-          fill="var(--color-released)"
-          radius={[4, 4, 0, 0]}
-        />
+          dataKey="count"
+          radius={[0, 4, 4, 0]}
+          barSize={24}
+        >
+          {data.map((entry) => (
+            <Cell key={entry.stage} fill={entry.fill} />
+          ))}
+        </Bar>
       </BarChart>
     </ChartContainer>
   );

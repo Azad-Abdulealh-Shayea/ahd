@@ -80,9 +80,9 @@ export function ActionsTable({
             <EmptyMedia variant="icon">
               <HugeiconsIcon icon={Task01Icon} />
             </EmptyMedia>
-            <EmptyTitle>لا توجد إجراءات مطلوبة</EmptyTitle>
+            <EmptyTitle>لا توجد إجراءات مطلوبة الآن</EmptyTitle>
             <EmptyDescription>
-              عندما تحتاج إلى قرار منك، سيظهر هنا.
+              جميع عقودك في حالة انتظار. ستظهر الإجراءات المطلوبة هنا عند الحاجة.
             </EmptyDescription>
           </EmptyContent>
         </Empty>

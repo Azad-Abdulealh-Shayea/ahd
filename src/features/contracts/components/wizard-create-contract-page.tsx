@@ -166,7 +166,12 @@ export function WizardCreateContractPage({
 
   return (
     <main className="bg-background fixed inset-0 z-[60] overflow-y-auto">
-      <div className="mx-auto flex min-h-dvh w-full max-w-7xl flex-col px-4 py-4 md:px-6">
+      <div
+        className={cn(
+          "flex min-h-dvh w-full flex-col px-4 py-4 md:px-6 transition-all duration-300",
+          aiChatOpen ? "max-w-7xl ms-0 xl:me-[24rem]" : "mx-auto max-w-7xl"
+        )}
+      >
         <header className="flex flex-col gap-4 border-b pb-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Link
@@ -253,6 +258,7 @@ export function WizardCreateContractPage({
             isReview={isReview}
             isSubmitting={isSubmitting}
             onNext={goNext}
+            aiChatOpen={aiChatOpen}
           />
         </form>
       </div>
@@ -275,16 +281,28 @@ function WizardActions({
   isReview,
   isSubmitting,
   onNext,
+  aiChatOpen,
 }: {
   previousStep?: CreateContractStep;
   nextStep?: CreateContractStep;
   isReview: boolean;
   isSubmitting: boolean;
   onNext: () => void;
+  aiChatOpen?: boolean;
 }) {
   return (
-    <div className="bg-background/95 fixed inset-x-0 bottom-0 z-20 border-t px-4 py-3 backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6">
-      <div className="mx-auto flex max-w-7xl flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      className={cn(
+        "bg-background/95 fixed inset-x-0 bottom-0 z-20 border-t px-4 py-3 backdrop-blur supports-[padding:max(0px)]:pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 transition-all duration-300",
+        aiChatOpen ? "xl:pe-[24rem]" : ""
+      )}
+    >
+      <div
+        className={cn(
+          "flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between transition-all duration-300",
+          aiChatOpen ? "max-w-7xl ms-0" : "mx-auto max-w-7xl"
+        )}
+      >
         {previousStep ? (
           <Button variant="outline" asChild>
             <Link href={`/dashboard/contracts/new/wizard/${previousStep}`}>

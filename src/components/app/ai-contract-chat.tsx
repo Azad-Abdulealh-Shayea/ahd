@@ -26,152 +26,32 @@ type AIContractChatProps = {
 const contractTemplates: Array<{
   title: string;
   icon: string;
-  data: Partial<CreateAndSendContractFormInput>;
+  prompt: string;
 }> = [
   {
     title: "تصميم موقع",
     icon: "🌐",
-    data: {
-      title: "تصميم موقع إلكتروني",
-      description: "تصميم موقع إلكتروني متجاوب للموبايل والكمبيوتر",
-      totalAmount: 5000,
-      milestones: [
-        {
-          title: "تصميم الواجهة",
-          description: "تصميم صفحات الموقع الرئيسية",
-          amount: 2000,
-          deliverables: [{ title: "تصميم Figma", description: "ملف التصميم" }],
-          acceptanceCriteria: ["تصميم متجاوب", "يدعم اللغة العربية"],
-          revisionsAllowed: 2,
-          reviewWindowHours: 72,
-        },
-        {
-          title: "التطوير",
-          description: "تنفيذ الموقع برمجياً",
-          amount: 3000,
-          deliverables: [{ title: "الموقع", description: "رابط الموقع" }],
-          acceptanceCriteria: ["الموقع يعمل", "الروابط سليمة"],
-          revisionsAllowed: 2,
-          reviewWindowHours: 72,
-        },
-      ],
-    },
+    prompt: "أريد عقد تصميم موقع إلكتروني متجاوب للموبايل والكمبيوتر بمبلغ 5000 ريال. قسمه إلى مرحلتين: تصميم الواجهة (Figma) والتطوير البرمجي.",
   },
   {
     title: "تطوير تطبيق",
     icon: "📱",
-    data: {
-      title: "تطوير تطبيق جوال",
-      description: "تطبيق جوال لنظامي iOS و Android",
-      totalAmount: 15000,
-      milestones: [
-        {
-          title: "التصميم",
-          description: "تصميم واجهات المستخدم",
-          amount: 4000,
-          deliverables: [{ title: "تصميم UI", description: "ملف Figma" }],
-          acceptanceCriteria: ["شاشات أساسية", "دعم RTL"],
-          revisionsAllowed: 2,
-          reviewWindowHours: 72,
-        },
-        {
-          title: "التطوير",
-          description: "برمجة التطبيق",
-          amount: 8000,
-          deliverables: [{ title: "التطبيق", description: "ملف APK/IPA" }],
-          acceptanceCriteria: ["التطبيق يعمل", "لا أخطاء"],
-          revisionsAllowed: 2,
-          reviewWindowHours: 72,
-        },
-        {
-          title: "التسليم",
-          description: "تسليم الكود والدعم",
-          amount: 3000,
-          deliverables: [{ title: "الكود", description: "رابط GitHub" }],
-          acceptanceCriteria: ["كود موثق", "دعم 30 يوم"],
-          revisionsAllowed: 1,
-          reviewWindowHours: 72,
-        },
-      ],
-    },
+    prompt: "قم بصياغة عقد تطوير تطبيق جوال لنظامي iOS و Android بمبلغ 15000 ريال. يشمل التصميم، التطوير، وتسليم الكود المصدري على 3 مراحل.",
   },
   {
     title: "تصميم شعار",
     icon: "🎨",
-    data: {
-      title: "تصميم شعار",
-      description: "تصميم هوية بصرية وشعار للشركة",
-      totalAmount: 2500,
-      milestones: [
-        {
-          title: "المفاهيم",
-          description: "تصميم 3 مفاهيم أولية",
-          amount: 1000,
-          deliverables: [{ title: "المفاهيم", description: "3 تصاميم" }],
-          acceptanceCriteria: ["3 تصاميم مميزة"],
-          revisionsAllowed: 2,
-          reviewWindowHours: 72,
-        },
-        {
-          title: "التطوير",
-          description: "تطوير الشعار المختار",
-          amount: 1500,
-          deliverables: [{ title: "الشعار النهائي", description: "ملفات SVG, PNG" }],
-          acceptanceCriteria: ["ملفات بجودة عالية", "دعم الألوان"],
-          revisionsAllowed: 3,
-          reviewWindowHours: 72,
-        },
-      ],
-    },
+    prompt: "عقد تصميم شعار وهوية بصرية بمبلغ 2500 ريال، مرحلة أولى لتقديم المفاهيم ومرحلة ثانية لتطوير الشعار المختار مع التسليم النهائي.",
   },
   {
     title: "كتابة محتوى",
     icon: "✍️",
-    data: {
-      title: "كتابة محتوى",
-      description: "كتابة محتوى تسويقي ومقالات",
-      totalAmount: 2000,
-      milestones: [
-        {
-          title: "المقالات",
-          description: "كتابة 5 مقالات",
-          amount: 2000,
-          deliverables: [{ title: "المقالات", description: "ملفات PDF" }],
-          acceptanceCriteria: ["5 مقالات", "300 كلمة لكل مقال"],
-          revisionsAllowed: 2,
-          reviewWindowHours: 72,
-        },
-      ],
-    },
+    prompt: "عقد كتابة محتوى تسويقي لـ 5 مقالات بمبلغ 2000 ريال، مرحلة واحدة وتسليم الملفات بصيغة PDF.",
   },
   {
     title: "استشارة",
     icon: "💡",
-    data: {
-      title: "استشارة تقنية",
-      description: "جلسات استشارية تقنية",
-      totalAmount: 3000,
-      milestones: [
-        {
-          title: "الجلسة الأولى",
-          description: "تحليل المتطلبات وتوصيات",
-          amount: 1500,
-          deliverables: [{ title: "التقرير", description: "تقرير PDF" }],
-          acceptanceCriteria: ["تقرير مفصل"],
-          revisionsAllowed: 1,
-          reviewWindowHours: 72,
-        },
-        {
-          title: "المتابعة",
-          description: "دعم ومتابعة لمدة شهر",
-          amount: 1500,
-          deliverables: [{ title: "الجلسات", description: "4 جلسات" }],
-          acceptanceCriteria: ["4 جلسات استشارية"],
-          revisionsAllowed: 0,
-          reviewWindowHours: 72,
-        },
-      ],
-    },
+    prompt: "عقد جلسات استشارية تقنية بمبلغ 3000 ريال، المرحلة الأولى تحليل وتوصيات، والمرحلة الثانية متابعة ودعم لمدة شهر عبر 4 جلسات.",
   },
 ];
 
@@ -199,23 +79,22 @@ export function AIContractChat({ onApplyContract }: AIContractChatProps) {
   }, [messages]);
 
   const handleTemplateSelect = (template: (typeof contractTemplates)[0]) => {
-    onApplyContract(template.data);
-    handleOpenChange(false);
+    void handleSend(template.prompt);
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isProcessing) return;
+  const handleSend = async (overrideInput?: string) => {
+    const textToSend = overrideInput ?? input.trim();
+    if (!textToSend || isProcessing) return;
 
-    const userMessage = input.trim();
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    setMessages((prev) => [...prev, { role: "user", content: textToSend }]);
     setIsProcessing(true);
 
     try {
       const response = await fetch("/api/ai/parse-contract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: textToSend }),
       });
 
       const result = (await response.json()) as {
@@ -271,15 +150,17 @@ export function AIContractChat({ onApplyContract }: AIContractChatProps) {
 
   if (!open) {
     return (
-      <Button
-        type="button"
-        className="fixed end-4 bottom-24 z-[80] shadow-lg md:end-6"
-        size="lg"
-        onClick={handleToggle}
-      >
-        <HugeiconsIcon icon={SparklesIcon} data-icon="inline-start" />
-        وثيق
-      </Button>
+      <div className="fixed end-4 bottom-24 z-[80] md:end-6 md:bottom-8 group">
+        <div className="absolute -inset-1 animate-pulse rounded-full bg-primary/30 blur-md transition-all duration-500 group-hover:-inset-2 group-hover:bg-primary/40 group-hover:blur-xl" />
+        <Button
+          type="button"
+          className="relative flex h-14 items-center gap-2.5 rounded-full bg-gradient-to-br from-primary to-primary/80 px-6 font-bold shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/40 active:translate-y-0"
+          onClick={handleToggle}
+        >
+          <HugeiconsIcon icon={SparklesIcon} className="size-5 text-yellow-300" />
+          <span className="text-base text-primary-foreground tracking-wide">صغ عقدك مع وثيق</span>
+        </Button>
+      </div>
     );
   }
 
@@ -403,7 +284,7 @@ export function AIContractChat({ onApplyContract }: AIContractChatProps) {
               />
               <Button
                 type="button"
-                onClick={handleSend}
+                onClick={() => void handleSend()}
                 disabled={!input.trim() || isProcessing}
                 size="icon-sm"
                 className="absolute bottom-3 end-3 size-8 rounded-full"

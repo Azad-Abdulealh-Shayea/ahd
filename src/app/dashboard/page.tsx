@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 import {
   ArrowLeft02Icon,
   CheckmarkCircle02Icon,
@@ -46,7 +45,7 @@ import { requireCurrentDemoUser } from "@/server/demo-session";
 import { listContractsForUser } from "@/server/services/contract-workflow";
 import type { DemoUser, Milestone } from "../../../generated/prisma";
 
-import { DashboardStatusPie, DashboardTrendChart } from "./dashboard-charts";
+
 
 export default async function DashboardPage() {
   const currentUser = await requireCurrentDemoUser();
@@ -111,12 +110,6 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
             لوحة القيادة
           </h1>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/contracts/new">
-            إنشاء عقد
-            <HugeiconsIcon icon={ArrowLeft02Icon} data-icon="inline-end" />
-          </Link>
-        </Button>
       </div>
 
       <div className="grid md:grid-cols-4">
@@ -149,55 +142,70 @@ function StatsSection({ summary }: { summary: DashboardSummary }) {
 }
 
 function ChartsSection({ summary }: { summary: DashboardSummary }) {
-  return (
-    <MotionSection className="grid gap-6 py-5 lg:grid-cols-[3fr_1fr]">
-      <section className="flex min-w-0 flex-col gap-4 lg:pe-6">
-        <SectionTitle
-          title="حركة العقود"
-          hint="أعمدة تقارن قيمة العقود والتمويل والحجز والصرف."
-        />
-        {summary.trendData.length ? (
-          <DashboardTrendChart data={summary.trendData} />
-        ) : (
-          <EmptyChart>لا توجد بيانات كافية للرسم.</EmptyChart>
-        )}
-      </section>
+  const milestones = summary.allMilestones;
+  const funded = milestones
+    .filter((m) => m.paymentStatus !== "UNFUNDED" && m.paymentStatus !== "RELEASED" && m.paymentStatus !== "RELEASE_PAUSED")
+    .reduce((sum, m) => sum + m.amount, 0);
+  const held = milestones
+    .filter((m) => m.paymentStatus === "RELEASE_PAUSED")
+    .reduce((sum, m) => sum + m.amount, 0);
+  const released = milestones
+    .filter((m) => m.paymentStatus === "RELEASED")
+    .reduce((sum, m) => sum + m.amount, 0);
 
-      <section className="flex min-w-0 flex-col gap-4 pt-5 lg:ps-6 lg:pt-0">
-        <SectionTitle
-          title="حالة العقود"
-          hint="توزيع سريع للعقود حسب الحالة الحالية."
-        />
-        {summary.pieData.length ? (
-          <>
-            <DashboardStatusPie
-              data={summary.pieData}
-              total={summary.totalContracts}
-            />
-            <div className="flex flex-col gap-2 text-sm">
-              {summary.pieData.map((item) => (
-                <div
-                  key={item.name}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <span className="text-muted-foreground flex items-center gap-2">
-                    <span
-                      className="size-2 rounded-full"
-                      style={{ backgroundColor: item.fill }}
-                    />
-                    {item.name}
-                  </span>
-                  <span className="font-medium tabular-nums">
-                    {item.value.toLocaleString("ar-SA")}
-                  </span>
+  const pipelineData = [
+    { label: "الممول", value: funded, color: "#10b981" },
+    { label: "المحجوز", value: held, color: "#f59e0b" },
+    { label: "المصرف", value: released, color: "#6366f1" },
+  ].filter((d) => d.value > 0);
+
+  if (pipelineData.length === 0) {
+    return null;
+  }
+
+  const total = pipelineData.reduce((sum, d) => sum + d.value, 0);
+  const maxValue = Math.max(...pipelineData.map((d) => d.value));
+
+  return (
+    <MotionSection className="flex flex-col gap-4 py-5">
+      <SectionTitle
+        title="سير المدفوعات"
+        hint="المبالغ الممولة والمحجوزة والمُصرفة."
+      />
+      <div className="rounded-2xl border bg-card p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-muted-foreground text-sm">الإجمالي</span>
+          <span className="text-2xl font-bold tabular-nums">{formatSar(total)}</span>
+        </div>
+        <div className="flex flex-col gap-4">
+          {pipelineData.map((item) => {
+            const percentage = Math.round((item.value / total) * 100);
+            return (
+              <div key={item.label} className="flex items-center gap-4">
+                <div className="flex w-20 items-center gap-2">
+                  <div className="size-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-sm">{item.label}</span>
                 </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <EmptyChart>لا توجد عقود بعد.</EmptyChart>
-        )}
-      </section>
+                <div className="flex-1">
+                  <div className="relative h-10 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="absolute inset-y-0 start-0 rounded-full"
+                      style={{
+                        width: `${(item.value / maxValue) * 100}%`,
+                        background: `linear-gradient(90deg, ${item.color} 0%, ${item.color}cc 100%)`,
+                      }}
+                    />
+                    <div className="absolute inset-y-0 flex items-center px-4 text-sm font-medium text-white">
+                      {percentage > 15 && `${percentage}%`}
+                    </div>
+                  </div>
+                </div>
+                <span className="w-28 text-end font-semibold tabular-nums">{formatSar(item.value)}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </MotionSection>
   );
 }
@@ -325,14 +333,6 @@ function InfoTooltip({ text }: { text: string }) {
   );
 }
 
-function EmptyChart({ children }: { children: ReactNode }) {
-  return (
-    <div className="text-muted-foreground flex h-56 items-center justify-center text-sm">
-      {children}
-    </div>
-  );
-}
-
 type DashboardSummary = ReturnType<typeof getDashboardSummary>;
 
 function getDashboardSummary(
@@ -370,6 +370,7 @@ function getDashboardSummary(
     totalFundedAmount,
     heldAmount,
     releasedAmount,
+    allMilestones: milestones,
     trendData: getTrendData(contracts),
     pieData: getPieData(contracts),
     actionRows,

@@ -11,6 +11,9 @@ import {
   LegalDocument01Icon,
   MoneySecurityIcon,
   Shield02Icon,
+  SparklesIcon,
+  Rocket01Icon,
+  GridIcon,
 } from "@hugeicons/core-free-icons";
 
 import {
@@ -22,7 +25,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-const steps = [
+type OnboardingStep = {
+  id: number;
+  title: string;
+  description: React.ReactNode;
+  visual: React.ReactNode;
+  isFinal?: boolean;
+};
+
+const steps: OnboardingStep[] = [
   {
     id: 1,
     title: "أهلاً بك في عهد! 👋",
@@ -57,7 +68,7 @@ const steps = [
       </div>
     ),
   },
-  {
+{
     id: 3,
     title: "وداعاً للتعديلات اللانهائية 🛡️",
     description:
@@ -68,6 +79,77 @@ const steps = [
         <span className="text-xl font-bold">حدود واضحة لكل مشروع</span>
       </div>
     ),
+  },
+{
+    id: 4,
+    title: "وثيق - محامي العقود الذكي 🤖",
+    description: (
+      <>
+        وثيق متخصص في صياغة عقود احترافية ومعايير قبول قابلة للقياس. فقط وصِف
+        مشروعك، وسيُنشئ عقداً متكاملاً بمراحل محددة ومعايير واضحة تحمي حقوقك.
+        <br />
+        <br />
+        <span className="text-sm text-muted-foreground">
+          🎯 مثال: &quot;عقد تطوير موقع متجر إلكتروني 8000 ريال، 3 مراحل، معايير
+          قبول محددة&quot;
+        </span>
+      </>
+    ),
+    visual: (
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5">
+        {/* TODO: Replace with actual GIF - recommended: screen recording of AI chat in action */}
+        {/* <img src="/path-to-watheeq-demo.gif" alt="Watheeq AI Demo" className="h-full w-full object-cover" /> */}
+        
+        {/* Placeholder - Replace with actual GIF */}
+        <div className="flex flex-col items-center gap-4 p-6 text-center">
+          <div className="relative">
+            <div className="bg-primary/10 flex size-20 items-center justify-center rounded-full">
+              <HugeiconsIcon icon={SparklesIcon} className="size-10 text-primary" />
+            </div>
+            <span className="absolute -top-1 -end-1 flex size-6 items-center justify-center rounded-full bg-yellow-400 text-xs animate-pulse">
+              ✨
+            </span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-lg font-bold text-primary">محامي العقود الذكي</span>
+            <span className="text-sm text-muted-foreground">
+              عقود احترافية بمعايير قبول قابلة للقياس
+            </span>
+          </div>
+          {/* Animated placeholder showing the flow */}
+          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="rounded-full bg-muted px-3 py-1">اكتب</span>
+            <HugeiconsIcon icon={ArrowLeft01Icon} className="size-3" />
+            <span className="rounded-full bg-muted px-3 py-1">أنشئ</span>
+            <HugeiconsIcon icon={ArrowLeft01Icon} className="size-3" />
+            <span className="rounded-full bg-muted px-3 py-1">طبق</span>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 5,
+    title: "أنت جاهز! 🚀",
+    description: (
+      <>
+        أنت الآن جاهز لاستخدام عهد. إليك بعض الخطوات المقترحة للبدء:
+      </>
+    ),
+    visual: (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-6 rounded-2xl bg-gradient-to-br from-brand-teal/20 to-brand-teal/5 p-6">
+        <div className="bg-brand-teal/20 flex size-20 items-center justify-center rounded-full">
+          <HugeiconsIcon icon={CheckmarkCircle02Icon} className="size-10 text-brand-teal" />
+        </div>
+        <div className="flex flex-col items-center gap-2 text-center">
+          <span className="text-lg font-bold text-brand-teal">م готов للبدء!</span>
+          <span className="text-sm text-muted-foreground">
+            اختر أحد الخيارات أدناه للبدء
+          </span>
+        </div>
+      </div>
+    ),
+    isFinal: true,
   },
 ];
 
@@ -116,7 +198,7 @@ export function WelcomeDialog() {
     }
   };
 
-  const step = steps[currentStep] ?? steps[0];
+  const step = steps[currentStep] ?? steps[0]!;
 
   return (
     <Dialog open={open} onOpenChange={(val) => !val && handleClose()}>
@@ -153,27 +235,29 @@ export function WelcomeDialog() {
             {/* Header / Skip */}
             <div className="flex items-center justify-between">
               <div className="flex gap-2" dir="ltr">
-                {steps.map((s, i) => (
+                {steps.filter(s => !s.isFinal).map((s, i) => (
                   <button
                     key={s.id}
                     onClick={() => setCurrentStep(i)}
                     aria-label={`الخطوة ${i + 1}`}
                     className={`h-2 cursor-pointer rounded-full transition-all duration-300 ${
-                      i === currentStep
+                      i === currentStep && !step.isFinal
                         ? "bg-brand-teal w-8"
                         : "bg-muted-foreground/30 hover:bg-brand-teal/50 w-2"
                     }`}
                   />
                 ))}
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClose}
-                className="text-muted-foreground hover:text-foreground font-medium"
-              >
-                تخطي
-              </Button>
+              {!step.isFinal && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClose}
+                  className="text-muted-foreground hover:text-foreground font-medium"
+                >
+                  تخطي
+                </Button>
+              )}
             </div>
 
             {/* Text Content */}
@@ -212,8 +296,27 @@ export function WelcomeDialog() {
             </div>
 
             {/* Footer / Actions */}
-            <div className="mt-auto flex items-center justify-between pt-8">
-              {currentStep === steps.length - 1 ? (
+            <div className="mt-auto flex flex-col gap-4 pt-8">
+              {step.isFinal ? (
+                <div className="flex flex-col gap-3">
+                  <Button
+                    onClick={startContract}
+                    size="lg"
+                    className="w-full bg-brand-teal text-brand-charcoal hover:bg-brand-teal/90 rounded-full text-base font-bold shadow-lg"
+                  >
+                    <HugeiconsIcon icon={Rocket01Icon} className="ms-2" />
+                    أنشئ عقدك الأول مع وثيق
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleClose}
+                    className="w-full rounded-full font-bold"
+                  >
+                    <HugeiconsIcon icon={GridIcon} className="ms-2" />
+                    استكشف لوحة التحكم
+                  </Button>
+                </div>
+              ) : currentStep === steps.length - 1 ? (
                 <div className="flex w-full items-center justify-between">
                   <Button
                     variant="ghost"
@@ -236,23 +339,25 @@ export function WelcomeDialog() {
                 </div>
               ) : (
                 <>
-                  <Button
-                    variant="ghost"
-                    onClick={prevStep}
-                    disabled={currentStep === 0}
-                    className={`text-brand-navy dark:text-brand-ivory font-bold ${currentStep === 0 ? "opacity-0" : "opacity-100"}`}
-                  >
-                    <HugeiconsIcon icon={ArrowRight01Icon} className="me-2" />
-                    السابق
-                  </Button>
-                  <Button
-                    onClick={nextStep}
-                    size="lg"
-                    className="rounded-full px-8 text-base font-bold"
-                  >
-                    التالي
-                    <HugeiconsIcon icon={ArrowLeft01Icon} className="ms-2" />
-                  </Button>
+                  <div className="flex items-center justify-between">
+                    <Button
+                      variant="ghost"
+                      onClick={prevStep}
+                      disabled={currentStep === 0}
+                      className={`text-brand-navy dark:text-brand-ivory font-bold ${currentStep === 0 ? "opacity-0" : "opacity-100"}`}
+                    >
+                      <HugeiconsIcon icon={ArrowRight01Icon} className="me-2" />
+                      السابق
+                    </Button>
+                    <Button
+                      onClick={nextStep}
+                      size="lg"
+                      className="rounded-full px-8 text-base font-bold"
+                    >
+                      التالي
+                      <HugeiconsIcon icon={ArrowLeft01Icon} className="ms-2" />
+                    </Button>
+                  </div>
                 </>
               )}
             </div>

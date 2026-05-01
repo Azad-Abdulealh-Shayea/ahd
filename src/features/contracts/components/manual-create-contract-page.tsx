@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, pageStagger } from "@/components/app/motion";
+import { cn } from "@/lib/utils";
 import {
   ContractBasicsFields,
   ContractReviewSummary,
@@ -14,14 +15,17 @@ import {
 import { useCreateContractFlow } from "@/features/contracts/components/create-contract-provider";
 
 export function ManualCreateContractPage() {
-  const { submitContract, isSubmitting } = useCreateContractFlow();
+  const { submitContract, isSubmitting, aiChatOpen } = useCreateContractFlow();
 
   return (
     <motion.form
       initial="hidden"
       animate="visible"
       variants={pageStagger}
-      className="mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1fr_18rem] lg:items-start"
+      className={cn(
+        "grid w-full gap-8 lg:grid-cols-[1fr_18rem] lg:items-start transition-all duration-300",
+        aiChatOpen ? "max-w-7xl ms-0 xl:me-[24rem]" : "mx-auto max-w-7xl"
+      )}
       onSubmit={(event) => {
         event.preventDefault();
         submitContract();

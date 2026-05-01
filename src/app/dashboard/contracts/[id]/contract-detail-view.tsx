@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   AlertCircleIcon,
   ArrowDown01Icon,
@@ -9,6 +11,7 @@ import {
   ArrowRightIcon,
   ArrowUp01Icon,
   Calendar02Icon,
+  CheckmarkCircle02Icon,
   FileViewIcon,
   LegalDocument01Icon,
   LockIcon,
@@ -34,11 +37,23 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
@@ -47,6 +62,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
 import {
   ContractStatusBadge,
   formatSar,
@@ -61,6 +77,7 @@ import {
   getPrimaryMilestone,
   type ContractDetailItem,
 } from "@/features/contracts/view-models";
+import { api } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import type { ContractParty, DemoUser } from "../../../../../generated/prisma";
 
@@ -80,10 +97,17 @@ export function ContractDetailView({
   const provider = contract.parties.find((party) => party.role === "PROVIDER");
   const payer = contract.parties.find((party) => party.role === "PAYER");
   const currentMilestone = getPrimaryMilestone(contract);
-  const canCopyInvite =
+  const canCopyInvite = Boolean(
     contract.status === "SENT" &&
     !contract.acceptedAt &&
-    !!contract.inviteToken;
+    contract.inviteToken
+  );
+  const canAcceptContract = Boolean(
+    contract.status === "SENT" &&
+    currentParty &&
+    !currentParty.acceptedAt &&
+    contract.inviteToken
+  );
   const roleKey =
     currentParty?.role === "PAYER" ? "PAYER_REVIEWER" : "PROVIDER";
   const role = roleDisplay[roleKey];
@@ -114,6 +138,7 @@ export function ContractDetailView({
             />
             <HeaderActions
               canCopyInvite={canCopyInvite}
+              canAcceptContract={canAcceptContract}
               inviteToken={contract.inviteToken}
               contract={contract}
             />
@@ -263,20 +288,134 @@ function StatusStrip({
 
 function HeaderActions({
   canCopyInvite,
+  canAcceptContract,
   inviteToken,
   contract,
 }: {
   canCopyInvite: boolean;
+  canAcceptContract: boolean;
   inviteToken: string | null;
   contract: ContractDetailItem;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {canCopyInvite && inviteToken ? (
+      {canAcceptContract && inviteToken ? (
+        <AcceptContractButton inviteToken={inviteToken} />
+      ) : canCopyInvite && inviteToken ? (
         <CopyInviteLinkButton inviteToken={inviteToken} />
       ) : null}
       <HistorySheet contract={contract} />
     </div>
+  );
+}
+
+function AcceptContractButton({ inviteToken }: { inviteToken: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [hasRead, setHasRead] = useState(false);
+  const acceptInvite = api.contracts.acceptInvite.useMutation({
+    onSuccess: (contract) => {
+      toast.success("تم قبول العقد.");
+      setOpen(false);
+      router.push(`/dashboard/contracts/${contract.id}`);
+      router.refresh();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  const isMatch = text === "أقبل هذا العقد";
+  const canSubmit = hasRead && isMatch && !acceptInvite.isPending;
+
+  const handleAccept = () => {
+    if (!canSubmit) return;
+    acceptInvite.mutate({ inviteToken });
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setTimeout(() => {
+        setText("");
+        setHasRead(false);
+      }, 200);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="action">
+          <HugeiconsIcon
+            icon={CheckmarkCircle02Icon}
+            data-icon="inline-start"
+          />
+          قبول العقد
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>تأكيد الموافقة على العقد</DialogTitle>
+          <DialogDescription>
+            بموافقتك على هذا العقد، أنت تلتزم بجميع الشروط، المراحل، ومعايير
+            القبول المذكورة.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-6 py-4">
+          <div className="bg-muted/50 flex items-start gap-3 rounded-2xl border p-4">
+            <Checkbox
+              id="read-terms"
+              checked={hasRead}
+              onCheckedChange={(checked) => setHasRead(checked === true)}
+              className="mt-1"
+            />
+            <div className="flex flex-col gap-1.5 leading-none">
+              <Label
+                htmlFor="read-terms"
+                className="cursor-pointer text-sm leading-snug font-semibold"
+              >
+                قرأت العقد وأتفهم جميع الشروط ومعايير القبول
+              </Label>
+              <p className="text-xs leading-relaxed opacity-80">
+                أقر بأن النزاعات وطلبات التعديل ستتم بناءً على ما هو مكتوب في
+                معايير القبول فقط. وأتفهم آلية التمويل وتسريح الدفعات.
+              </p>
+            </div>
+          </div>
+
+          <div
+            className={`flex flex-col gap-3 transition-opacity duration-300 ${!hasRead ? "pointer-events-none opacity-40" : "opacity-100"}`}
+          >
+            <Label htmlFor="accept-text" className="text-sm leading-relaxed">
+              للتأكيد النهائي، يرجى كتابة{" "}
+              <strong className="bg-muted text-foreground rounded px-1.5 py-0.5 select-all">
+                أقبل هذا العقد
+              </strong>{" "}
+              أدناه:
+            </Label>
+            <Input
+              id="accept-text"
+              placeholder="أقبل هذا العقد"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              autoComplete="off"
+              disabled={!hasRead}
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            إلغاء
+          </Button>
+          <Button variant="action" disabled={!canSubmit} onClick={handleAccept}>
+            {acceptInvite.isPending ? <Spinner data-icon="inline-start" /> : null}
+            {acceptInvite.isPending ? "جاري القبول…" : "تأكيد القبول"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -387,8 +526,12 @@ function MilestonePanel({
                   <span className="min-w-0 truncate text-base font-medium">
                     {milestone.title}
                   </span>
-                  <MilestoneStatusBadge status={milestone.status} />
-                  <PaymentStatusBadge status={milestone.paymentStatus} />
+                  {isCurrent && (
+                    <>
+                      <MilestoneStatusBadge status={milestone.status} />
+                      <PaymentStatusBadge status={milestone.paymentStatus} />
+                    </>
+                  )}
                 </span>
                 <span className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-sm">
                   <span>{milestone.reviewWindowHours} ساعة مراجعة</span>
